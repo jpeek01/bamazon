@@ -3,7 +3,8 @@ var inquirer = require("inquirer");
 var cTable = require('console.table');
 
 var connection = mysql.createConnection({host: "localhost", port: 3306, user: "admin", password: "password1", database: "BAMAZON"});
-var sql;
+let sql;
+let total = 0;
 
 diplayAllProducts();
 
@@ -12,7 +13,7 @@ function app() {
         {
             type: 'input',
             message: 'Please choose a product by Product Code',
-            name: 'seletedProductCode'
+            name: 'selectedProductCode'
         },
         {
             type: 'input',
@@ -27,28 +28,31 @@ function app() {
         }
     ]).then(function(userInput) {
 
-        sql = "SELECT ID_ITEM, PRICE, STOCK ";
+        sql = "SELECT ID_ITEM, PRICE, STOCK, PRODUCT_SALES ";
         sql = sql + "FROM PRODUCTS ";
         sql = sql + "WHERE ID_ITEM = ?";
 
-        connection.query(sql, userInput.seletedProductCode, function(err, result) {
+        connection.query(sql, userInput.selectedProductCode, function(err, result) {
 
             if (userInput.selectedQuantity > result[0].STOCK) {
                 console.log('We are apologize. We do not have sufficient quantities to fulfill your order.');
                 nextItem();
             } else {
-                let total = userInput.selectedQuantity * result[0].PRICE;
+                let productCode = parseInt(userInput.selectedProductCode);
+                total = parseFloat((total + (userInput.selectedQuantity * result[0].PRICE)).toFixed(2));
+                let newProductSales = result[0].PRODUCT_SALES + total
                 let newStockQuantity = result[0].STOCK - userInput.selectedQuantity;
-                console.log('Your order total is: ' + total);
+                console.log('Your current order total is: $' + total);
 
-                sql = "UPDATE PRODUCTS SET ? WHERE ?"
-                connection.query(sql, [{STOCK: newStockQuantity},{ID_ITEM: userInput.seletedProductCode}],                     function(err, result) { 
+                //Update the stock quantity
+                sql = "UPDATE PRODUCTS SET STOCK = ?, PRODUCT_SALES = ? ";
+                sql = sql + "WHERE ID_ITEM = ?";
+                connection.query(sql, [newStockQuantity,newProductSales,productCode],function(error, result) { 
+                    if (error) throw error;
+
                     nextItem();
                 });
-
             }
-            // console.table(result);
-
         });
     });
 }
@@ -59,11 +63,6 @@ function nextItem() {
             type: 'confirm',
             message: 'Do you want to buy another item?',
             name: 'nextItem'
-        },
-        {
-            type: 'confirm',
-            name: 'reprint',
-            message: 'Reprint Products?'
         }
     ]).then(function(userInput) { 
         if (userInput.nextItem) {
@@ -75,7 +74,6 @@ function nextItem() {
         } else {
             connection.end();
         }
-
     });
 }
 
