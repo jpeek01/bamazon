@@ -41,7 +41,7 @@ function addItemStock() {
     inquirer.prompt([
         {
             type: 'input',
-            message: 'ITEM_CODE to update: ',
+            message: 'Product Code to update: ',
             name: 'itemCode'
         },
         {
@@ -51,16 +51,21 @@ function addItemStock() {
         }
     ]).then(function(managerInput) {
 
-        let insertSql = "SELECT STOCK FROM PRODUCTS WHERE ID_ITEM = ?";
+        let selectSql = "SELECT STOCK FROM PRODUCTS WHERE ID_ITEM = ?";
+
+        let itemCode = managerInput.itemCode
+        let updateItemCodeStock = parseInt(managerInput.updateItemCodeStock)
 
         connection.query(selectSql, [itemCode],function(error, result) { 
             if (error) throw error;
             
+            let itemCodeStock = parseInt(result[0].STOCK);
+
             console.log('Current stock is ' + itemCodeStock);
-            itemCodeStockNew = parseInt(itemCodeStock + result[0].STOCK);
+            itemCodeStockNew = itemCodeStock + updateItemCodeStock;
             console.log('New stock is ' + itemCodeStockNew);
 
-            let selectSql = "UPDATE PRODUCTS SET STOCK = ? ";
+            let updateSql = "UPDATE PRODUCTS SET STOCK = ? ";
             updateSql = updateSql + "WHERE ID_ITEM = ?";
     
             connection.query(updateSql, [itemCodeStockNew, itemCode],function(error, result) { 
