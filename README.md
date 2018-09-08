@@ -1,4 +1,4 @@
-# bamazon
+# Bamazon
 
 
 ## Customer User Interface ##
@@ -45,15 +45,15 @@
 
 ### Purchase Product ###
 
-![alt text](/readme_images/database3.png)
+![alt text](/readme_images/database4.png)
 
 #### Before Purchase #####
 
-![alt text](/readme_images/database4.png)
+![alt text](/readme_images/database5.png)
 
 #### After Purchase #####
 
-![alt text](/readme_images/database5.png)
+![alt text](/readme_images/database6.png)
 
 
 
